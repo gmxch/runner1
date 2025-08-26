@@ -42,9 +42,8 @@ function headers($req){
     ];
 }
 
-// Ambil ID langsung dari input user
-echo "Input gpgsid: ";
-$id = trim(fgets(STDIN));
+// Ambil ID dari environment variable workflow input
+$id = getenv('GPGSID');
 
 function claim($id){
     $host = "https://faucetwebservice.mobilecloudmining.ru/";
