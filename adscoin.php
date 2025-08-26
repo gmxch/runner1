@@ -34,46 +34,45 @@ function Run($url, $head = 0, $post = 0, $method = "POST") {
 function headers($req){
     return [
         'Host: faucetwebservice.mobilecloudmining.ru',
-        'User-Agent:UnityPlayer/2022.3.17f1 (UnityWebRequest/1.0, libcurl/8.4.0-DEV)',
+        'User-Agent: UnityPlayer/2022.3.17f1 (UnityWebRequest/1.0, libcurl/8.4.0-DEV)',
         'Accept:*/*',
-        'Content-Type:application/x-www-form-urlencoded',
-        'X-Unity-Version:2022.3.17f1',
-        "Content-Length: ".strlen($req)
+        'Content-Type: application/x-www-form-urlencoded',
+        'X-Unity-Version: 2022.3.17f1',
+        "Content-Length: " . strlen($req)
     ];
 }
 
-// Ambil ID dari input workflow
 $id = getenv('GPGSID');
 
-function claim($id){
+function claim($gpgsid){
     $host = "https://faucetwebservice.mobilecloudmining.ru/";
 
     while(true){
-        // login ulang setiap cycle
-        $req = "gpgsId=$id";
+        // login
+        $req = "gpgsId=$gpgsid";
         $r = Run("$host/R%7DR4i+jYzc89z-Q/api/v0.1.3/login.php", headers($req), $req);
         $parts = explode('|', $r);
 
-        if(count($parts) < 4){
+        if(count($parts) < 4 || stripos($r, "user_not_exist") !== false){
             echo "[ERROR] Login gagal: $r\n";
             sleep(15);
-            continue; // ulangi login
+            continue; // ulangi login pakai GPGSID asli
         }
 
-        $id = $parts[0];
-        $user = $parts[1];
-        $curn = $parts[2];
-        $bal = $parts[3];
-        $code = $parts[14] ?? "";
+        $login_id = $parts[0];
+        $user     = $parts[1];
+        $curn     = $parts[2];
+        $bal      = $parts[3];
+        $code     = $parts[14] ?? "";
 
         echo "[INFO] USER: $user\n";
-        echo "[INFO] ID: $id\n";
+        echo "[INFO] ID: $login_id\n";
         echo "[INFO] COUNTRY: $curn\n";
         echo "[INFO] BALANCE: $bal COINS\n";
         echo str_repeat("━", 40) . "\n";
 
         // ambil config
-        $req = "id=$id";    
+        $req = "id=$login_id";    
         Run("$host/R%7DR4i+jYzc89z-Q/api/v0.1.3/getConfig.php", headers($req), $req);    
 
         $ad_watched = 0;
@@ -87,12 +86,12 @@ function claim($id){
         foreach ($adprice as $price) {
             $last_bal = $bal;    
             $ad_watched++;
-            $req = "id=$id&adPriceType=Bid&adPrice=$price&adNumber=$ad_watched&key=$code";    
+            $req = "id=$login_id&adPriceType=Bid&adPrice=$price&adNumber=$ad_watched&key=$code";    
             $r = Run("$host/R%7DR4i+jYzc89z-Q/api/v0.1.3/plusCoinsForVideo.php", headers($req), $req);
             $resp = explode('|',$r);
             $bal = $resp[0] ?? "";
 
-            if($bal == "" || stripos($bal, "error") !== false){
+            if($bal == "" || stripos($bal, "error") !== false || !is_numeric($bal)){
                 echo "[ERROR] Claim gagal di AD #$ad_watched. Pesan: $bal\n";
                 echo "[INFO] Tunggu 15 detik, login ulang...\n";
                 sleep(15);
