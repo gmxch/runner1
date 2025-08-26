@@ -94,7 +94,7 @@ function claim($id){
             echo "[SUCCESS] AD_WATCHED: $ad_watched\n";
             echo str_repeat("━", 40) . "\n";
 
-            sleep(4); // delay 4 detik per ad
+            sleep(9); // delay 
         }
 
         echo "[INFO] ALL ADS CYCLE COMPLETE. REFRESHING...\n";
