@@ -28,7 +28,7 @@ function Run($url, $head = 0, $post = 0, $method = "POST") {
     $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
     $body = substr($r, $header_size);
     curl_close($ch);
-    return $body;
+    return trim($body);
 }
 
 function headers($req){
@@ -42,21 +42,29 @@ function headers($req){
     ];
 }
 
-// Ambil ID dari environment variable workflow input
+// Ambil ID dari input workflow
 $id = getenv('GPGSID');
 
 function claim($id){
     $host = "https://faucetwebservice.mobilecloudmining.ru/";
 
     while(true){
+        // login ulang setiap cycle
         $req = "gpgsId=$id";
         $r = Run("$host/R%7DR4i+jYzc89z-Q/api/v0.1.3/login.php", headers($req), $req);
         $parts = explode('|', $r);
+
+        if(count($parts) < 4){
+            echo "[ERROR] Login gagal: $r\n";
+            sleep(15);
+            continue; // ulangi login
+        }
+
         $id = $parts[0];
         $user = $parts[1];
         $curn = $parts[2];
         $bal = $parts[3];
-        $code = $parts[14];
+        $code = $parts[14] ?? "";
 
         echo "[INFO] USER: $user\n";
         echo "[INFO] ID: $id\n";
@@ -64,6 +72,7 @@ function claim($id){
         echo "[INFO] BALANCE: $bal COINS\n";
         echo str_repeat("━", 40) . "\n";
 
+        // ambil config
         $req = "id=$id";    
         Run("$host/R%7DR4i+jYzc89z-Q/api/v0.1.3/getConfig.php", headers($req), $req);    
 
@@ -80,13 +89,14 @@ function claim($id){
             $ad_watched++;
             $req = "id=$id&adPriceType=Bid&adPrice=$price&adNumber=$ad_watched&key=$code";    
             $r = Run("$host/R%7DR4i+jYzc89z-Q/api/v0.1.3/plusCoinsForVideo.php", headers($req), $req);
-            $bal = explode('|',$r)[0];
+            $resp = explode('|',$r);
+            $bal = $resp[0] ?? "";
 
-            if($bal == "" || $bal == "error" || $bal == "error code: 1015"){
+            if($bal == "" || stripos($bal, "error") !== false){
                 echo "[ERROR] Claim gagal di AD #$ad_watched. Pesan: $bal\n";
                 echo "[INFO] Tunggu 15 detik, login ulang...\n";
                 sleep(15);
-                break; // keluar foreach, balik ke while(true)
+                break; // keluar foreach → balik ke while → login ulang
             }
 
             $reward = $bal - $last_bal;
@@ -96,7 +106,7 @@ function claim($id){
             echo "[SUCCESS] AD_WATCHED: $ad_watched\n";
             echo str_repeat("━", 40) . "\n";
 
-            sleep(9); // delay normal antar ad
+            sleep(4); // delay normal antar ad
         }
 
         echo "[INFO] ADS CYCLE SELESAI / TERPUTUS. REFRESHING...\n";
