@@ -105,7 +105,7 @@ function claim($gpgsid){
             echo "[SUCCESS] AD_WATCHED: $ad_watched\n";
             echo str_repeat("━", 40) . "\n";
 
-            sleep(4); // delay normal antar ad
+            sleep(1); // delay normal antar ad
         }
 
         echo "[INFO] ADS CYCLE SELESAI / TERPUTUS. REFRESHING...\n";
