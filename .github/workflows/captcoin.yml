@@ -1,4 +1,4 @@
-name: Run CaptchaBot
+name: Run captcoin.php
 
 on:
   workflow_dispatch:  # bisa manual trigger
