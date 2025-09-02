@@ -2,8 +2,6 @@ name: Run CaptchaBot
 
 on:
   workflow_dispatch:  # bisa manual trigger
-  schedule:
-    - cron: '0 * * * *'  # jalan tiap jam, bisa diubah
 
 jobs:
   run-bot:
@@ -22,7 +20,7 @@ jobs:
 
       # 3. Pastikan permission executable
       - name: Set executable permission
-        run: chmod +x bot.php
+        run: chmod +x captcoin/captcoin.php
 
       # 4. Jalankan bot
       - name: Run Captcoin.php
