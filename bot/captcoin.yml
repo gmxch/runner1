@@ -1,0 +1,29 @@
+name: Run CaptchaBot
+
+on:
+  workflow_dispatch:  # bisa manual trigger
+  schedule:
+    - cron: '0 * * * *'  # jalan tiap jam, bisa diubah
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout repo
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 2. Setup PHP
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      # 3. Pastikan permission executable
+      - name: Set executable permission
+        run: chmod +x bot.php
+
+      # 4. Jalankan bot
+      - name: Run CaptchaBot
+        run: php bot.php
