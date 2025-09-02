@@ -39,6 +39,7 @@ jobs:
           ssh_pass=$(echo "${{ github.event.inputs.ssh_login }}" | cut -d':' -f2)
           echo "Menjalankan SSH tunnel di port ${{ github.event.inputs.ssh_port_local }}"
           sshpass -p "$ssh_pass" \
+            -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
             ssh -f -N -D ${{ github.event.inputs.ssh_port_local }} "$ssh_userhost"
           sleep 5
 
