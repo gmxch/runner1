@@ -6,7 +6,6 @@ $earnUrl      = "https://captchacoin.site/captcha-type-and-earn/";
 $ajaxUrl      = "https://captchacoin.site/wp-admin/admin-ajax.php";
 // Hapus cookie lama biar fresh tiap run
 $cookieJar = __DIR__ . "/cookies.txt";
-if(file_exists($cookieJar)) unlink($cookieJar);
 $configFile   = __DIR__ . "/config.json";
 
 // === Warna & efek terminal ===
