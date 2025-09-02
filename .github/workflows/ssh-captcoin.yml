@@ -45,7 +45,7 @@ jobs:
 
       # 5. Set executable permission
       - name: Set executable permission
-        run: chmod +x captcoin/ssh+captcoin.php
+        run: chmod +x captcoin/ssh-captcoin.php
 
       # 6. Start bot
       - name: Run Captcoin.php
