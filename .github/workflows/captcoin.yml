@@ -1,7 +1,14 @@
-name: Run captcoin.php
+name: captcoin.php
 
 on:
-  workflow_dispatch:  # bisa manual trigger
+  workflow_dispatch:
+    inputs:
+      username:
+        description: 'CaptchaCoin Username'
+        required: true
+      password:
+        description: 'CaptchaCoin Password'
+        required: true
 
 jobs:
   run-bot:
@@ -22,6 +29,9 @@ jobs:
       - name: Set executable permission
         run: chmod +x captcoin/captcoin.php
 
-      # 4. Jalankan bot
+      # 4. Jalankan bot dengan environment variables dari input
       - name: Run Captcoin.php
         run: php captcoin/captcoin.php
+        env:
+          USERNAME: ${{ github.event.inputs.username }}
+          PASSWORD: ${{ github.event.inputs.password }}
