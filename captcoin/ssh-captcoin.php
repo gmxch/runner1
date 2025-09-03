@@ -4,18 +4,12 @@ $loginUrl     = "https://captchacoin.site/login/";
 $dashboardUrl = "https://captchacoin.site/dashboard/";
 $earnUrl      = "https://captchacoin.site/captcha-type-and-earn/";
 $ajaxUrl      = "https://captchacoin.site/wp-admin/admin-ajax.php";
-
-// Ambil login + proxy dari environment variable
 $login = getenv('LOGIN') ?: '';
 $proxyPort = getenv('SSH_PROXY_PORT') ?: '';
 $proxy = $proxyPort ? "127.0.0.1:$proxyPort" : null;
-
-if(!$login) die("\033[31m7²2„1‚5 LOGIN (user:pass) belum diisi.\033[0m\n");
-
+if(!$login) die("\033[31mâš ï¸ LOGIN (user:pass) belum diisi.\033[0m\n");
 list($username, $password) = explode(':', $login, 2);
-if(!$username || !$password) die("\033[31m7²2„1‚5 Format LOGIN salah, harus user:pass.\033[0m\n");
-
-// Hapus cookie lama
+if(!$username || !$password) die("\033[31mâš ï¸ Format LOGIN salah, harus user:pass.\033[0m\n");
 $cookieJar = __DIR__ . "/cookies.txt";
 if(file_exists($cookieJar)) unlink($cookieJar);
 
@@ -66,14 +60,14 @@ function curl_post($url,$postFields,$cookieJar,$proxy=null){
 }
 
 // --- LOGIN ---
-echo color("”9±4 Mengambil halaman login...\n","36");
+echo color("ðŸŒ Mengambil halaman login...\n","36");
 $loginPage = curl_get($loginUrl,$cookieJar,$proxy);
 
 preg_match('/name="_wpnonce" value="([^"]+)"/',$loginPage,$m); $wpnonce = $m[1] ?? '';
 preg_match('/name="form_id" value="([^"]+)"/',$loginPage,$m); $formId = $m[1] ?? '21';
 preg_match('/name="redirect_to" value="([^"]+)"/',$loginPage,$m); $redirectTo = $m[1] ?? '';
 
-echo color("”9ä7 Mengirim data login...\n","36");
+echo color("ðŸ”‘ Mengirim data login...\n","36");
 $postFields = [
     "username-21" => $username,
     "user_password-21" => $password,
@@ -85,7 +79,7 @@ $postFields = [
 ];
 
 $response = curl_post($loginUrl,$postFields,$cookieJar,$proxy);
-echo color("7¼3 Login berhasil!\n","32");
+echo color("âœ… Login berhasil!\n","32");
 
 // --- Ambil balance ---
 $dashboardPage = curl_get($dashboardUrl,$cookieJar,$proxy);
@@ -93,11 +87,11 @@ if(preg_match('/<div class="balance">\s*Balance:\s*<span>([^<]+)<\/span>/i',$das
     $balance = trim($match[1]);
 else 
     $balance = "Tidak ditemukan";
-echo color("”9Û0 Balance: $balance\n","33");
+echo color("ðŸ’° Balance: $balance\n","33");
 
 // === LOOP UTAMA ===
 while(true){
-    echo color("”9Á3 Mengambil captcha...\n","36");
+    echo color("ðŸŽ¯ Mengambil captcha...\n","36");
     $earnPage = curl_get($earnUrl,$cookieJar,$proxy);
 
     // Ambil captcha
@@ -106,9 +100,9 @@ while(true){
         $boxHtml = $matchBox[1];
         if(preg_match('/<div[^>]*>\s*([A-Za-z0-9]{5,6})\s*<\/div>/is',$boxHtml,$matchCaptcha)){
             $captcha = trim($matchCaptcha[1]);
-            echo color("•0®8 Captcha: $captcha\n","32");
-        } else echo color("7²2„1‚5 Captcha tidak ditemukan.\n","31");
-    } else echo color("7²2„1‚5 Captcha box tidak ditemukan.\n","31");
+            echo color("ðŸŸ¢ Captcha: $captcha\n","32");
+        } else echo color("âš ï¸ Captcha tidak ditemukan.\n","31");
+    } else echo color("âš ï¸ Captcha box tidak ditemukan.\n","31");
 
     // Kirim captcha
     $ajaxData = ['cte_input'=>$captcha,'action'=>'cte_submit_captcha'];
@@ -116,9 +110,18 @@ while(true){
 
     if(preg_match("/Correct! (\d+) BONK added\./i",$ajaxResponse,$m)){
         $bonk = $m[1];
-        echo color("”9Ù9 +$bonk BONK!\n","32");
+
+        // Ambil balance terbaru
+        $dashboardPage = curl_get($dashboardUrl,$cookieJar,$proxy);
+        if(preg_match('/<div class="balance">\s*Balance:\s*<span>([^<]+)<\/span>/i',$dashboardPage,$match)) 
+            $balance = trim($match[1]);
+        else 
+            $balance = "Tidak ditemukan";
+
+        // Tampilkan BONK + balance
+        echo color("[CAPTCHA] $captcha â†’ +$bonk BONK | Balance: $balance\n","32");
     } else {
-        echo color("7²2„1‚5 BONK tidak terdeteksi.\n","31");
+        echo color("[CAPTCHA] $captcha â†’ gagal\n","31");
     }
 
     sleep(5);
