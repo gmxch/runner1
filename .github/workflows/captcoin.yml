@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        account: ${{ fromJSON('["' + join('","', github.event.inputs.numbers.split(',')) + '"]') }}
+        account: ${{ fromJSON('["' + replace(github.event.inputs.numbers, ' ', '') + '"]') }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
