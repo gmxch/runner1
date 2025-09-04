@@ -1,4 +1,4 @@
-name: captcoin.php
+name: matrix+captcoin.php
 
 on:
   workflow_dispatch:
