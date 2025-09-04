@@ -62,7 +62,7 @@ $response = curl_exec($ch);
 curl_close($ch);
 echo color("✅ Login berhasil!\n","32");
 
-// --- Ambil balance ---
+// --- Ambil balance awal ---
 $ch = curl_init();
 curl_setopt_array($ch, [
     CURLOPT_URL => $dashboardUrl,
@@ -123,9 +123,28 @@ while(true){
 
     if(preg_match("/Correct! (\d+) BONK added\./i", $ajaxResponse, $m)){
         $bonk = $m[1];
-        echo color("💥 +$bonk BONK!\n","32");
+
+        // Ambil balance terbaru tiap captcha
+        $ch = curl_init();
+        curl_setopt_array($ch, [
+            CURLOPT_URL => $dashboardUrl,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_COOKIEJAR => $cookieJar,
+            CURLOPT_COOKIEFILE => $cookieJar,
+            CURLOPT_USERAGENT => "Mozilla/5.0"
+        ]);
+        $dashboardPage = curl_exec($ch);
+        curl_close($ch);
+
+        if(preg_match('/<div class="balance">\s*Balance:\s*<span>([^<]+)<\/span>/i', $dashboardPage, $match)) 
+            $balance = trim($match[1]);
+        else 
+            $balance = "Tidak ditemukan";
+
+        echo color("💥 [CAPTCHA] $captcha ✅ +$bonk BONK | Balance: $balance\n","32");
     } else {
-        echo color("⚠️ BONK tidak terdeteksi.\n","31");
+        echo color("⚠️ [CAPTCHA] $captcha gagal\n","31");
     }
 
     sleep(5); // delay antar loop
