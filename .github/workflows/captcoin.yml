@@ -3,32 +3,31 @@ name: captcoin.php
 on:
   workflow_dispatch:
     inputs:
-      username:
-        description: 'CaptchaCoin Username'
+      numbers:
+        description: 'List of account numbers, pisahkan pakai koma'
         required: true
+        default: "001,002,003,004,005"
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
-
+    strategy:
+      matrix:
+        account: ${{ fromJSON('["' + join('","', github.event.inputs.numbers.split(',')) + '"]') }}
     steps:
-      # 1. Checkout repo
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2. Setup PHP
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
 
-      # 3. Pastikan permission executable
       - name: Set executable permission
         run: chmod +x captcoin/captcoin.php
 
-      # 4. Jalankan bot dengan environment variables dari input
       - name: Run Captcoin.php
         run: php captcoin/captcoin.php
         env:
-          USERNAME: ${{ github.event.inputs.username }}
+          USERNAME: gtg${{ matrix.account }}
           PASSWORD: memeX3213!
