@@ -4,16 +4,16 @@ on:
   workflow_dispatch:
     inputs:
       numbers:
-        description: 'List of account numbers, pisahkan pakai koma'
+        description: 'List of account numbers, pakai JSON array'
         required: true
-        default: "001,002,003,004,005"
+        default: '["001","002","003","004","005"]'
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        account: ${{ github.event.inputs.numbers.split(',') }}
+        account: ${{ fromJSON(github.event.inputs.numbers) }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
