@@ -1,5 +1,14 @@
-- run:
-    name: Generate dynamic config
-    command: bash sh/captcoin.sh "<< parameters.accounts >>"
-- continuation/continue:
-    configuration_path: generated_config.yml
+jobs:
+  setup:
+    docker:
+      - image: cimg/base:stable
+    parameters:
+      accounts:
+        type: string
+    steps:
+      - checkout
+      - run:
+          name: Generate dynamic config
+          command: bash scripts/generate_config.sh "<< parameters.accounts >>"
+      - continuation/continue:
+          configuration_path: generated_config.yml
