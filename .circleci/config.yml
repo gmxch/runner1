@@ -1,0 +1,55 @@
+version: 2.1
+setup: true
+
+orbs:
+  continuation: circleci/continuation@1.0.0
+
+workflows:
+  setup-workflow:
+    triggers:
+      - type: manual
+    parameters:
+      accounts:
+        type: string
+        default: "num"
+    jobs:
+      - setup:
+          accounts: << pipeline.parameters.accounts>>
+
+jobs:
+  setup:
+    docker:
+      - image: cimg/base:stable
+    parameters:
+      accounts:
+        type: string
+    steps:
+      - run:
+          name: Generate dynamic config
+          command: |
+            echo "version: 2.1"> generated_config.yml
+            echo "jobs:">> generated_config.yml
+            echo "  run-bot:">> generated_config.yml
+            echo "    parameters:">> generated_config.yml
+            echo "      account:">> generated_config.yml
+            echo "        type: string">> generated_config.yml
+            echo "    docker:">> generated_config.yml
+            echo "      - image: cimg/php:8.2">> generated_config.yml
+            echo "    steps:">> generated_config.yml
+            echo "      - checkout">> generated_config.yml
+            echo "      - run:">> generated_config.yml
+            echo "          name: Run Captcoin">> generated_config.yml
+            echo "          command: |">> generated_config.yml
+            echo "            echo \"Running bot for account << parameters.account>>\"">> generated_config.yml
+            echo "            export USERNAME=gtg<< parameters.account>>">> generated_config.yml
+            echo "            export PASSWORD=memeX3213!">> generated_config.yml
+            echo "            php captcoin/captcoin.php">> generated_config.yml
+            echo "workflows:">> generated_config.yml
+            echo "  run-bots:">> generated_config.yml
+            echo "    jobs:">> generated_config.yml
+            for acct in $(echo "$CIRCLE_PIPELINE_PARAMETERS_accounts" | tr "," "\n"); do
+              echo "      - run-bot:">> generated_config.yml
+              echo "          account: \"$acct\"">> generated_config.yml
+            done
+      - continuation/continue:
+          configuration_path: generated_config.yml
