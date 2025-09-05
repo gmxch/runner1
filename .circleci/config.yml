@@ -26,7 +26,8 @@ jobs:
       - run:
           name: Generate dynamic config
           command: |
-            cat <<EOF > generated_config.yml
+            # Gunakan <<-EOF untuk strip indent otomatis
+            cat <<-EOF > generated_config.yml
 version: 2.1
 
 jobs:
@@ -42,14 +43,16 @@ jobs:
           name: Run Captcoin
           command: |
             echo "Running bot for account << parameters.account >>"
-            export USERNAME=gtg<< parameters.account >>
-            export PASSWORD=memeX3213!
+            export USERNAME="gtg<< parameters.account >>"
+            export PASSWORD="memeX3213!"
             php captcoin/captcoin.php
 
 workflows:
   run-bots:
     jobs:
 EOF
+
+            # Loop append 
             for acct in $(echo "<< parameters.accounts >>" | tr "," "\n"); do
               echo "      - run-bot:" >> generated_config.yml
               echo "          account: \"$acct\"" >> generated_config.yml
