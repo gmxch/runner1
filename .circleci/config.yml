@@ -6,8 +6,8 @@ orbs:
 
 workflows:
   setup-workflow:
-    triggers:
-      - type: manual
+   # triggers:
+   #   - type: manual
     parameters:
       accounts:
         type: string
