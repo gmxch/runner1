@@ -1,0 +1,5 @@
+- run:
+    name: Generate dynamic config
+    command: bash sh/captcoin.sh "<< parameters.accounts >>"
+- continuation/continue:
+    configuration_path: generated_config.yml
