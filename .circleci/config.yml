@@ -4,14 +4,19 @@ setup: true
 orbs:
   continuation: circleci/continuation@1.0.0
 
+parameters:
+  accounts:
+    type: string
+    default: "num"
+
 workflows:
   setup-workflow:
    # triggers:
    #   - type: manual
-    parameters:
-      accounts:
-        type: string
-        default: "num"
+   # parameters:
+   #   accounts:
+   #     type: string
+   #     default: "num" 
     jobs:
       - setup:
           accounts: << pipeline.parameters.accounts>>
