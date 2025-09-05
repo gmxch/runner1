@@ -26,8 +26,7 @@ jobs:
       - run:
           name: Generate dynamic config
           command: |
-            # Gunakan <<-EOF untuk strip indent otomatis
-            cat <<-EOF > generated_config.yml
+            cat > generated_config.yml <<'EOF'
 version: 2.1
 
 jobs:
@@ -51,8 +50,6 @@ workflows:
   run-bots:
     jobs:
 EOF
-
-            # Loop append 
             for acct in $(echo "<< parameters.accounts >>" | tr "," "\n"); do
               echo "      - run-bot:" >> generated_config.yml
               echo "          account: \"$acct\"" >> generated_config.yml
